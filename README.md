@@ -55,7 +55,7 @@ app/
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/minhas-pilulas.git
+git clone https://github.com/Larissarbnf/Medicamentos.git
 ```
 
 2. Abra o projeto no Android Studio
