@@ -27,6 +27,8 @@ import com.example.medicamentos.data.db.DatabaseProvider
 import com.example.medicamentos.data.entities.MedicamentoEntity
 import com.example.medicamentos.datastore.darkModeFlow
 import com.example.medicamentos.datastore.saveDarkMode
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 // Re-usable model alias: use the Entity directly in UI
 typealias Medicamento = MedicamentoEntity
@@ -34,6 +36,10 @@ typealias Medicamento = MedicamentoEntity
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val initialDarkMode = runBlocking {
+            darkModeFlow(applicationContext).first()
+        }
         setContent {
             // Obtain dark mode pref via DataStore
             val context = LocalContext.current
@@ -154,18 +160,9 @@ fun TelaListaMedicamentos(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF6B1B9A),
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            Icons.Default.Menu,
-                            contentDescription = "Menu",
-                            tint = Color.White
-                        )
-                    }
-                },
                 actions = {
                     // Theme toggle
                     IconButton(onClick = { onToggleTheme(!darkMode) }) {
@@ -179,7 +176,7 @@ fun TelaListaMedicamentos(
                         Icon(
                             Icons.Default.Refresh,
                             contentDescription = "Atualizar",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onSecondary
                         )
                     }
                 }
@@ -188,16 +185,16 @@ fun TelaListaMedicamentos(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddClick,
-                containerColor = Color(0xFFE91E63)
+                containerColor = MaterialTheme.colorScheme.secondary
             ) {
                 Icon(
                     Icons.Default.Add,
                     contentDescription = "Adicionar",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
         },
-        containerColor = Color(0xFF121212)
+        containerColor = MaterialTheme.colorScheme.onBackground
     ) { padding ->
         Column(
             modifier = Modifier
@@ -206,7 +203,7 @@ fun TelaListaMedicamentos(
         ) {
             // Data atual
             Surface(
-                color = Color(0xFF6B1B9A),
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -218,13 +215,13 @@ fun TelaListaMedicamentos(
                 ) {
                     Text(
                         dataAtual,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         diaSemana,
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
                         fontSize = 16.sp
                     )
                 }
@@ -243,12 +240,12 @@ fun TelaListaMedicamentos(
                         Icons.Default.Notifications,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSecondary
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         "Sem pílulas programadas",
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSecondary,
                         fontSize = 16.sp
                     )
                 }
@@ -260,7 +257,7 @@ fun TelaListaMedicamentos(
                     item {
                         Text(
                             "Lista de Medicamentos",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = 12.dp)
@@ -289,7 +286,7 @@ fun CardMedicamento(
 ) {
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = Color(0xFF1E1E1E),
+        color = MaterialTheme.colorScheme.surface, // usa surface do tema
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -307,14 +304,14 @@ fun CardMedicamento(
                 Icon(
                     Icons.Default.Favorite,
                     contentDescription = null,
-                    tint = Color(0xFFE91E63),
+                    tint = MaterialTheme.colorScheme.secondary, // cor secundária do tema
                     modifier = Modifier.size(32.dp)
                 )
 
                 Column {
                     Text(
                         medicamento.nome,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface, // texto sobre surface
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
@@ -324,13 +321,13 @@ fun CardMedicamento(
                             else
                                 "Com pausas"
                         }",
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, // variante mais suave
                         fontSize = 13.sp
                     )
                     if (medicamento.descricao.isNotEmpty()) {
                         Text(
                             medicamento.descricao,
-                            color = Color.Gray.copy(alpha = 0.7f),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                             fontSize = 11.sp,
                             modifier = Modifier.padding(top = 4.dp)
                         )
@@ -343,14 +340,14 @@ fun CardMedicamento(
                     Icon(
                         Icons.Default.Edit,
                         contentDescription = "Editar",
-                        tint = Color(0xFF2196F3)
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 IconButton(onClick = onDelete) {
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Excluir",
-                        tint = Color(0xFFF44336)
+                        tint = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -378,19 +375,20 @@ fun TelaAdicionarMedicamento(
                 title = {
                     Text(
                         "MINHAS PÍLULAS",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF6B1B9A),
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Voltar",
-                            tint = Color.White
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -401,7 +399,6 @@ fun TelaAdicionarMedicamento(
                 onClick = {
                     if (nome.isNotEmpty() && dataInicio.isNotEmpty() && hora.isNotEmpty()) {
                         val medicamentoParaSalvar = if (medicamentoEditando != null) {
-                            // Editando: mantém o ID original
                             Medicamento(
                                 id = medicamentoEditando.id,
                                 nome = nome,
@@ -412,7 +409,6 @@ fun TelaAdicionarMedicamento(
                                 descricao = descricao
                             )
                         } else {
-                            // Novo: ID = 0 para auto-incrementar
                             Medicamento(
                                 id = 0L,
                                 nome = nome,
@@ -426,16 +422,16 @@ fun TelaAdicionarMedicamento(
                         onSave(medicamentoParaSalvar)
                     }
                 },
-                containerColor = Color(0xFFE91E63)
+                containerColor = MaterialTheme.colorScheme.secondary
             ) {
                 Icon(
                     Icons.Default.Check,
                     contentDescription = "Salvar",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
         },
-        containerColor = Color(0xFF121212)
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -477,7 +473,7 @@ fun TelaAdicionarMedicamento(
                 Column {
                     Text(
                         "Dias *",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
@@ -511,7 +507,7 @@ fun TelaAdicionarMedicamento(
                 Column {
                     Text(
                         "Descrição",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -523,17 +519,17 @@ fun TelaAdicionarMedicamento(
                             .fillMaxWidth()
                             .height(120.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF1E1E1E),
-                            unfocusedContainerColor = Color(0xFF1E1E1E),
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = Color(0xFFE91E63),
-                            unfocusedBorderColor = Color.Gray
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
                         ),
                         placeholder = {
                             Text(
                                 "Informações adicionais (opcional)",
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     )
@@ -542,6 +538,7 @@ fun TelaAdicionarMedicamento(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -555,7 +552,7 @@ fun CampoTexto(
     Column {
         Text(
             label,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 14.sp,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -565,15 +562,18 @@ fun CampoTexto(
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFF1E1E1E),
-                unfocusedContainerColor = Color(0xFF1E1E1E),
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = if (destaque) Color(0xFFE91E63) else Color(0xFFE91E63),
-                unfocusedBorderColor = if (destaque) Color(0xFFE91E63) else Color.Gray
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                focusedBorderColor = if (destaque) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = if (destaque) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline
             ),
             placeholder = {
-                Text(placeholder, color = Color.Gray)
+                Text(
+                    placeholder,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         )
     }
@@ -595,11 +595,14 @@ fun OpcaoRadio(
             selected = selecionado,
             onClick = onClick,
             colors = RadioButtonDefaults.colors(
-                selectedColor = Color(0xFFE91E63),
-                unselectedColor = Color.Gray
+                selectedColor = MaterialTheme.colorScheme.secondary,
+                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(texto, color = Color.White)
+        Text(
+            texto,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
