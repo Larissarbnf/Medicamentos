@@ -1,57 +1,93 @@
 # 💊 Minhas Pílulas
 
-Um aplicativo Android moderno para gerenciamento de medicamentos, desenvolvido com Jetpack Compose e Room Database.
+Minhas Pílulas é um aplicativo Android moderno para gerenciamento de medicamentos, desenvolvido com Kotlin e Jetpack Compose. O app oferece persistência local de dados, atualização reativa da interface e salvamento da preferência de tema (claro/escuro) utilizando tecnologias atuais do ecossistema Android.
 
 ## 📱 Sobre o Projeto
 
-O **Minhas Pílulas** permite que usuários organizem seus medicamentos de forma simples e intuitiva, registrando informações como nome, horário de uso, frequência e descrição. Todos os dados são armazenados localmente no dispositivo, garantindo privacidade e acesso offline.
+O Minhas Pílulas foi criado para auxiliar usuários no controle e organização de seus medicamentos de forma simples e eficiente.
+
+O aplicativo permite cadastrar medicamentos contendo:
+- Nome
+- Horário de uso
+- Frequência
+- Observações adicionais
+
+Todos os dados são armazenados localmente no dispositivo por meio do **Room Database**, garantindo funcionamento offline e privacidade do usuário.
+
+Além disso, o aplicativo possui suporte a tema claro e escuro, cuja preferência é persistida com **DataStore Preferences**, assegurando que a configuração escolhida seja mantida entre as execuções do app.
 
 ## ✨ Funcionalidades
 
-- ✅ Adicionar medicamentos com informações detalhadas
-- ✅ Editar medicamentos existentes
-- ✅ Excluir medicamentos
-- ✅ Visualizar lista completa de medicamentos
-- ✅ Atualização automática da interface em tempo real
-- ✅ Tema claro e escuro
-- ✅ Persistência local de dados
+- ➕ Adicionar medicamentos com informações detalhadas
+- ✏️ Editar medicamentos existentes
+- 🗑️ Excluir medicamentos
+- 📋 Visualizar lista completa de medicamentos
+- 🔄 Atualização automática da interface em tempo real
+- 🌗 Alternância entre tema claro e escuro
+- 💾 Persistência local de dados com Room
+- 🎨 Persistência da preferência de tema com DataStore Preferences
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Kotlin** - Linguagem de programação
-- **Jetpack Compose** - UI moderna e declarativa
-- **Room Database** - Persistência local (SQLite)
-- **Coroutines** - Programação assíncrona
-- **Flow** - Dados reativos
-- **DataStore** - Preferências do usuário
-- **Material Design 3** - Design system
+- Kotlin
+- Jetpack Compose
+- Room Database (SQLite)
+- Coroutines
+- Flow
+- DataStore Preferences
+- Material Design 3
 
-## 🏗️ Arquitetura
+## 🏗️ Arquitetura do Projeto
 
-O projeto segue boas práticas de arquitetura Android:
-
+O projeto segue boas práticas de organização e separação de responsabilidades.
 ```
 app/
 ├── data/
 │   ├── entities/
-│   │   └── MedicamentoEntity.kt      # Definição da tabela
+│   │   └── MedicamentoEntity.kt      # Entidade do banco de dados
 │   ├── dao/
 │   │   └── MedicamentoDao.kt         # Operações CRUD
 │   ├── db/
-│   │   ├── AppDatabase.kt            # Configuração do banco
+│   │   ├── AppDatabase.kt            # Configuração do Room
 │   │   └── DatabaseProvider.kt       # Singleton do banco
 │   └── datastore/
-│       └── SettingsDataStore.kt      # Preferências
-└── MainActivity.kt                    # UI principal
+│       └── SettingsDataStore.kt      # Preferências do usuário (Tema)
+└── MainActivity.kt                    # Interface principal (Compose)
 ```
 
-### Padrões Utilizados
+## 📐 Padrões e Conceitos Utilizados
 
-- **Repository Pattern** - Separação de responsabilidades
-- **Singleton Pattern** - Instância única do banco de dados
-- **MVVM (implícito)** - Separação entre UI e lógica de negócios
+**Repository Pattern**  
+Centraliza o acesso aos dados, facilitando manutenção e testes.
 
-## 🚀 Como Executar
+**Singleton Pattern**  
+Garante uma única instância do banco de dados Room.
+
+**MVVM (implícito)**  
+Separação entre interface do usuário e lógica de negócios.
+
+**Programação Reativa**  
+Uso de Flow para atualização automática da interface.
+
+## 🎨 Tema e Preferências do Usuário
+
+A aplicação permite alternar entre modo claro e modo escuro diretamente pela interface.
+
+A preferência do usuário é salva utilizando **DataStore Preferences**, garantindo que:
+- O tema escolhido seja restaurado automaticamente ao reabrir o app
+- A persistência seja feita de forma assíncrona e segura
+- A aplicação utilize uma API moderna baseada em Flow, substituindo o uso de SharedPreferences
+
+## 🔄 Fluxo de Dados
+```
+Usuário → Interface → Validação → Coroutine → Room Database
+                                                      ↓
+                                                    Flow
+                                                      ↓
+                                     Atualização automática da UI
+```
+
+## 🚀 Como Executar o Projeto
 
 1. Clone o repositório:
 ```bash
@@ -60,82 +96,33 @@ git clone https://github.com/Larissarbnf/Medicamentos.git
 
 2. Abra o projeto no Android Studio
 
-3. Sincronize as dependências do Gradle
+3. Sincronize o Gradle
 
-4. Execute o aplicativo em um emulador ou dispositivo físico
+4. Execute em um emulador ou dispositivo físico
 
-### Requisitos
+## 📋 Requisitos
 
 - Android Studio Arctic Fox ou superior
 - SDK mínimo: Android 7.0 (API 24)
 - SDK alvo: Android 14 (API 34)
 
-## 💡 Como Funciona
-
-### Salvamento de Dados
-
-1. Usuário preenche o formulário com informações do medicamento
-2. Ao clicar no botão de salvar, os dados são validados
-3. Uma coroutine executa a operação de inserção em background
-4. Room Database salva os dados no arquivo local SQLite
-5. Flow notifica a UI automaticamente sobre as mudanças
-6. A lista é atualizada em tempo real sem necessidade de refresh manual
-
-### Estrutura do Banco de Dados
-
-**Tabela: medicamentos**
-
-| Campo       | Tipo   | Descrição                          |
-|-------------|--------|------------------------------------|
-| id          | Long   | Chave primária (auto incremento)   |
-| nome        | String | Nome do medicamento                |
-| dataInicio  | String | Data de início do tratamento       |
-| hora        | String | Horário de uso                     |
-| frequencia  | String | Frequência (diária, limitada, etc) |
-| dataFinal   | String | Data final (opcional)              |
-| descricao   | String | Observações adicionais             |
-
-## 🎨 Interface
-
-O aplicativo possui uma interface clean e intuitiva com:
-
-- **Tela de Lista**: Visualização de todos os medicamentos cadastrados
-- **Tela de Adição/Edição**: Formulário completo para gerenciar medicamentos
-- **FAB (Floating Action Button)**: Acesso rápido para adicionar medicamentos
-- **Tema Adaptativo**: Suporte a modo claro e escuro
-
-## 🔄 Fluxo de Dados Reativo
-
-```
-Usuário → Formulário → Validação → Coroutine → Room Database
-                                                      ↓
-                                                    Flow
-                                                      ↓
-                                     UI (Atualização Automática)
-```
-
-## 📚 Conceitos Implementados
-
-### Coroutines
-Operações de banco de dados são executadas em background para manter a UI responsiva e evitar travamentos.
-
-### Flow
-Implementação de dados reativos que atualizam a interface automaticamente quando há mudanças no banco de dados.
-
-### Room Database
-ORM (Object-Relational Mapping) que simplifica operações com SQLite, oferecendo:
-- Verificação de erros em tempo de compilação
-- Código mais limpo e seguro
-- Suporte nativo a Flow e Coroutines
-
 ## 🐛 Solução de Problemas
 
-### App crasha ao abrir
-- Verifique se todas as dependências estão atualizadas
-- Limpe e reconstrua o projeto (`Build > Clean Project`)
+### ❌ Medicamentos não aparecem após salvar
 
-### Medicamentos não aparecem após salvar
 - Verifique se o Flow está sendo coletado corretamente
-- Confirme que as coroutines estão sendo executadas no escopo adequado
+- Confirme o uso adequado de Coroutines
+- Certifique-se de que o estado da UI está sendo atualizado
 
+### ❌ Tema não persiste após fechar o app
 
+- Verifique a leitura e gravação do DataStore Preferences
+- Confirme a coleta do Flow de tema dentro do setContent
+
+## 📌 Considerações Finais
+
+Este projeto demonstra o uso de boas práticas modernas no desenvolvimento Android, com foco em:
+- Arquitetura limpa
+- Programação reativa
+- Persistência eficiente
+- Interface moderna com Jetpack Compose
